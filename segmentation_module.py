@@ -27,7 +27,7 @@ MASK_OPTION_4_CLOTHES = 'clothes'
 MASK_OPTION_5_ACCESSORIES = 'others/Accessories'
 model_path_ext = 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite'
 #'./models_linker/raw_models/mediapipe/mutliclass_image_seg/selfie_multiclass_256x256.tflite'
-mask_targets = ['clothes','background']
+mask_targets = ['clothes','others/Accessories'] #background
 mask_dilation = 0
 
 import urllib

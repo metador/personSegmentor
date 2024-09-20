@@ -1,3 +1,4 @@
+                        v
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,5 +13,76 @@
         <input type="file" name="image" accept="image/*" required>
         <button type="submit">Segment Image</button>                        
     </form>
-</body>
-</html>
+    
+    <!-- <h1>Image Generation App</h1>
+    <form action="/modelSwitchApi" method="post" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Segment Image</button>                        
+    </form> -->
+    <h1>Image Generation App</h1>
+    <script>
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const fileInput = form.querySelector('input[name="image"]');
+            const optionInput = form.querySelector('select[name="option"]');
+            
+            if (fileInput.files.length === 0) {
+                alert("Please select an image file.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = async function() {
+                const base64Image = reader.result.split(',')[1]; // Get base64 part
+                const option = optionInput.value;
+
+                const payload = {
+                    image: base64Image,
+                    param: option
+                };
+
+                try {
+                    const response = await fetch('/modelSwitchApi', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log(data)
+                    
+                    
+                    // Handle the response data as needed
+                    return ("<img src=" + decodeURIComponent(data['image']) + " /> Time Taken"+ data['duration'] + "s");
+                } catch (error) {
+                    console.error('Error:', error);
+                    // Handle the error as needed
+                }
+            };
+
+            reader.readAsDataURL(file);
+            
+        }
+    </script>
+</head>
+<body>
+    <form id="uploadForm" onsubmit="handleSubmit(event)">
+        <input type="file" name="image" accept="image/*" required>
+        <select name="option" required>
+            <option value="Asian">Asian</option>
+            <option value="Model1">Model1</option>
+            <option value="Other">Other</option>
+        </select>
+        <button type="submit">Segment Image</button>
+    </form>
+   </html>
