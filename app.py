@@ -11,6 +11,7 @@ import io
 import time
 from PIL import Image
 from datetime import datetime
+from utils.imageModules import remove_background_raw,white_background_raw
 import requests
 import threading
 ## https://chat.openai.com/share/3db77dd2-5467-4a07-b3ca-8496f9ff3d7b
@@ -125,6 +126,95 @@ def segment_api():
 
     #save_image(byte_arr, os.path.join(image_api_path,'mask_image'+str(time.time())+'.png'))
     return jsonify({'image': data, 'time': duration})
+
+
+@app.route('/rmbg', methods=['POST'])
+def remove_background_api():
+    #if 'image' not in request:
+    #    returnjsonify({'error': 'No image provided'})
+    #Logger.debug('This is the message', str(request.files))
+    #image_file = request.files['image']  # body['image']
+    #Logger.info(image_file)
+
+    ## Getting data request from api sent as body: JSON.stringify({ image: base64Image }),}
+    data = request.get_json()
+    image_file = data.get('image')
+    start = time.time()
+    
+    print('Starting Removing Background')
+    #image_path = './uploads/input_image.jpg'
+    #image_file.save(image_path)
+
+    # Perform image segmentation asynchronously using Celery
+    #logging.info(msg = image_data)
+    image_data_noBg = remove_background_raw(base64.b64decode(image_file))
+    #mask = perform_segmentation(io.BytesIO(image_data_noBg), raw_data = False).convert('RGB')
+    #mask = perform_segmentation(image_data, raw_data = False).convert('RGB')
+    # byte_arr = io.BytesIO()
+    # image_data_noBg.save(byte_arr,format='png')
+
+    # # Get the byte value from the BytesIO object
+    # byte_arr = byte_arr.getvalue()
+    # encoded_img_data = b64encode(byte_arr)
+    # data =  encoded_img_data.decode('utf-8')
+    #task = perform_image_segmentation.delay(image_path)
+
+    image_path = './uploads/input_image_nobg.jpg'
+    with open(image_path, 'wb') as o:
+        #input = i.read()
+        #output = remove(input, force_return_bytes=True)
+        o.write(image_data_noBg)    
+    encoded_img_data = b64encode(image_data_noBg)
+    data =  encoded_img_data.decode('utf-8')
+    end = time.time()
+    duration  = end-start
+
+
+    #save_image(byte_arr, os.path.join(image_api_path,'mask_image'+str(time.time())+'.png'))
+    return jsonify({'image': data, 'time': duration})
+
+
+@app.route('/whitebg', methods=['POST'])
+def white_background_api():
+    # if 'image' not in request:
+        
+    #     return jsonify({'error': 'No image provided'})
+
+    ## Getting data request from api sent as body: JSON.stringify({ image: base64Image }),}
+    data = request.get_json()
+    image_file = data.get('image')
+    start = time.time()
+    
+    print('Starting change to white Background')
+    #image_path = './uploads/input_image.jpg'
+    #image_file.save(image_path)
+
+    # Perform image segmentation asynchronously using Celery
+    #logging.info(msg = image_data)
+    image_data_whiteBg = white_background_raw(base64.b64decode(image_file))
+  
+    image_path = './uploads/input_image_whitebg.jpg'
+    image_data_whiteBg.save(image_path)
+    
+    byte_arr = io.BytesIO()
+    image_data_whiteBg.save(byte_arr,format='png')
+
+    # Get the byte value from the BytesIO object
+    byte_arr = byte_arr.getvalue()
+    encoded_img_data = b64encode(byte_arr)
+    data =  encoded_img_data.decode('utf-8')
+    
+    #encoded_img_data = b64encode(image_data_whiteBg)
+    #data =  encoded_img_data.decode('utf-8')
+    end = time.time()
+    duration  = end-start
+
+
+    #save_image(byte_arr, os.path.join(image_api_path,'mask_image'+str(time.time())+'.png'))
+    return jsonify({'image': data, 'time': duration})
+
+
+
 
 def get_options(option):
     print(option)

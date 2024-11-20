@@ -3,6 +3,8 @@ import glob
 import os
 from PIL import Image
 import cv2
+import io
+
 
 def remove_background(input_path, output_path, file_name_suffix = 'nobg'):
     in_files = []
@@ -23,6 +25,23 @@ def remove_background(input_path, output_path, file_name_suffix = 'nobg'):
                 o.write(output)
     print ('Background removed images saved at:', output_path)
 
+
+def remove_background_raw(imageData):
+        output = remove(imageData)        
+        return output 
+
+def white_background_raw(imageData):
+    original_image = Image.open(io.BytesIO(imageData))
+    
+    output_nobg = Image.open(io.BytesIO(remove_background_raw(imageData)))
+    
+    white_background = Image.new("RGB", original_image.size, "white")
+    combined_image = Image.alpha_composite(white_background.convert("RGBA"), output_nobg.convert("RGBA"))
+    
+    # Convert the result back to RGB (if needed)
+    combined_image = combined_image.convert("RGB")
+    
+    return combined_image
 
 def white_background(input_path, output_path,):
     in_files = []
