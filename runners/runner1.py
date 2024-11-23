@@ -8,19 +8,21 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from utils.imageModules import *
 
-input_path = "D:\GDrive.melwinjamesp\Companies\\aodel\dataset_raw\meshop\MelDataSet\loras\white\person1"
-output_path = "D:\GDrive.melwinjamesp\Companies\\aodel\dataset_raw\meshop\MelDataSet\loras\white\person1_ench"
+input_path = "D:\GDrive.melwinjamesp\Companies\\aodel\shopify\\ai-model\extras\Posters\Images\images2"
+output_path = "D:\GDrive.melwinjamesp\Companies\\aodel\shopify\\ai-model\extras\Posters\Images\\nobg2"
 if os.path.exists(output_path):
     pass
 else:
     os.makedirs(output_path)
 
-resize_with_pad(input_path, output_path, 512, 512)
+# resize_with_pad(input_path, output_path, 512, 512)
 
-input = "D:\GDrive.melwinjamesp\Companies\\aodel\dataset_raw\meshop\MelDataSet\loras\white\person1_ench"
-#white_background(input_path, output_path)
-crop_top_center(input_path, output_path, 512)
+# input = "D:\GDrive.melwinjamesp\Companies\\aodel\dataset_raw\meshop\MelDataSet\loras\white\person1_ench"
+# #white_background(input_path, output_path)
+# crop_top_center(input_path, output_path, 512)
 
-input_path = "D:\GDrive.melwinjamesp\Companies\\aodel\dataset_raw\meshop\MelDataSet\loras\white\person1_ench"
+# input_path = "D:\GDrive.melwinjamesp\Companies\\aodel\dataset_raw\meshop\MelDataSet\loras\white\person1_ench"
 
-white_background(input_path, output_path)
+# white_background(input_path, output_path)
+
+remove_background(input_path, output_path)
