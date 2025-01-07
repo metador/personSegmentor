@@ -1,0 +1,9 @@
+setuptools
+Flask
+Pillow
+requests
+opencv-python
+mediapipe
+numpy
+rembg[cpu]
+boto3
