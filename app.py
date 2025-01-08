@@ -12,6 +12,7 @@ import time
 from PIL import Image
 from datetime import datetime
 from utils.imageModules import remove_background_raw,white_background_raw
+from utils.aws import upload_to_s3
 import requests
 import threading
 import gc
@@ -21,6 +22,8 @@ import gc
 app = Flask(__name__)
 image_path = './uploads/'
 image_api_path = './uploads/api/'
+bucket_name = 'aimodel-gen'
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -53,11 +56,31 @@ def segment_image():
     return f"""<img src={data}></img><img src={image_path}></img> Time taken {duration}"""
 
 
-def save_image_async(image_data, image_path):
+# def save_image_async(image_data, image_path):
+#     with open(image_path, 'wb') as f:
+#         f.write(image_data)
+    
+#         print('Image saved at:', image_path)
+#     return None
+
+
+# Modify save_image_async to include S3 upload
+def save_image_async(image_data, image_path, image_name, bucket_name, s3_path):
+    """Save image locally and to S3"""
+    # Save locally first
+    image_path = os.path.join(image_path, image_name)
     with open(image_path, 'wb') as f:
         f.write(image_data)
+        print('Image saved locally at:', image_path)
     
-        print('Image saved at:', image_path)
+    # Upload to S3
+   #filename = os.path.basename(image_path)
+    s3_path = f"{s3_path}/{image_name}"  # Customize S3 path as needed
+    if upload_to_s3(image_data, bucket_name, s3_path):
+        print(f"Image uploaded to S3: {s3_path}")
+    else:
+        print("Failed to upload to S3")
+    
     return None
 
 
@@ -97,8 +120,8 @@ def segment_api():
         save_thread = threading.Thread(
             target=save_image_async,
             args=(base64.b64decode(image_file), 
-                    os.path.join(image_api_path, f'original_image_{datetime.now().strftime("%Y%m%d.%H.%M.%S.%f")}.png'))
-        )
+                    image_api_path, f'{tid}_{datetime.now().strftime("%Y%m%d.%H.%M.%S.%f")}.png', bucket_name, 'original'))
+        
         save_thread.daemon = True
         save_thread.start()
 
@@ -126,11 +149,13 @@ def segment_api():
     duration  = end-start
 
     ## Create a new non blocking process to save the image
-    save_thread2 = threading.Thread(target=save_image_async, args=(byte_data, os.path.join(image_api_path, 'mask_image_' + str(datetime.now().strftime("%Y%m%d.%H.%M.%S.%f")) + '.png')))
+    save_thread2 = threading.Thread(target=save_image_async, args=(byte_data, image_api_path, f'{tid}_mask_image_' + str(datetime.now().strftime("%Y%m%d.%H.%M.%f")) + '.png',bucket_name,"mask"))
     
     #p2 = multiprocessing.Process(target=save_image_async, args=(byte_arr, os.path.join(image_api_path, 'mask_image_' + str(datetime.now().strftime("%Y%m%d.%H.%M.%S.%f")) + '.png')))
     save_thread2.daemon = True
     save_thread2.start()
+    del data
+    
     gc.collect()
     #save_image(byte_arr, os.path.join(image_api_path,'mask_image'+str(time.time())+'.png'))
     return jsonify({'image': result_data, 'time': duration})

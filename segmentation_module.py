@@ -158,5 +158,11 @@ def perform_segmentation(file, raw_data = False):
     
         # Create the image
         mask_image = Image.fromarray(merged_mask_arrays)
-        print(mask_image)
-        return mask_image
+        #print(mask_image)
+        del merged_mask_arrays
+        del mask
+        del mask_array
+        del mask_arrays
+        del mask_foreground_array
+        del mask_background_array   
+    return mask_image

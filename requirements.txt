@@ -7,3 +7,4 @@ mediapipe
 numpy
 rembg[cpu]
 boto3
+python-dotenv
